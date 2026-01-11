@@ -1,7 +1,7 @@
 /**
- * Entry Page
+ * Entry Page - Cyber Tech Edition
  * 
- * Name + avatar selection page.
+ * Futuristic name + avatar selection page.
  * First screen players see.
  */
 
@@ -50,7 +50,7 @@ export function EntryPage() {
   const handleJoinGame = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setLoading(false);
+    setLoading(true);
 
     try {
       const response = await joinGame(displayName, avatarId, gameCode);
@@ -63,29 +63,79 @@ export function EntryPage() {
     }
   };
 
+  // Avatar options with cyber theme
+  const avatars = ['🤖', '👾', '🎮', '⚡', '🔮', '💎', '🌟', '🚀'];
+
   if (!mode) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center p-3 sm:p-4">
-        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 max-w-md w-full">
-          <h1 className="text-3xl sm:text-4xl font-bold text-center mb-2">🎮 Simon Says</h1>
-          <p className="text-gray-600 text-center mb-6 sm:mb-8 text-sm sm:text-base">Color Race Edition</p>
+      <div className="min-h-screen bg-[#0a0a0f] cyber-grid-animated flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Animated background orbs */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        
+        <div className="glass-card rounded-2xl p-8 max-w-md w-full relative cyber-corners animate-slide-up">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <h1 
+              className="text-5xl sm:text-6xl font-bold mb-2"
+              style={{ fontFamily: 'Orbitron, sans-serif' }}
+            >
+              <span className="text-glow-cyan text-[#00f0ff]">SIM</span>
+              <span className="text-glow-pink text-[#ff00ff]">ON</span>
+            </h1>
+            <div className="flex items-center justify-center gap-2 text-gray-400">
+              <span className="w-8 h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent" />
+              <span className="text-xs uppercase tracking-[0.3em]" style={{ fontFamily: 'Orbitron, sans-serif' }}>
+                Neural Link Edition
+              </span>
+              <span className="w-8 h-px bg-gradient-to-r from-transparent via-pink-500 to-transparent" />
+            </div>
+          </div>
           
-          <div className="space-y-3 sm:space-y-4">
+          {/* Buttons */}
+          <div className="space-y-4 stagger-children">
             <button
               onClick={() => setMode('create')}
-              className="w-full bg-purple-600 hover:bg-purple-700 active:bg-purple-800 active:scale-98 text-white font-bold py-3 sm:py-4 px-6 rounded-lg sm:rounded-xl transition-all duration-75 text-base sm:text-lg min-h-[56px]"
+              className="cyber-btn w-full py-4 px-6 rounded-lg text-base min-h-[60px]"
               style={{ touchAction: 'manipulation' }}
             >
-              Create Game
+              <span className="flex items-center justify-center gap-3">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Initialize Game
+              </span>
             </button>
             
             <button
               onClick={() => setMode('join')}
-              className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 active:scale-98 text-white font-bold py-3 sm:py-4 px-6 rounded-lg sm:rounded-xl transition-all duration-75 text-base sm:text-lg min-h-[56px]"
+              className="cyber-btn cyber-btn-pink w-full py-4 px-6 rounded-lg text-base min-h-[60px]"
               style={{ touchAction: 'manipulation' }}
             >
-              Join Game
+              <span className="flex items-center justify-center gap-3">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Join Session
+              </span>
             </button>
+          </div>
+          
+          {/* Footer decoration */}
+          <div className="mt-8 flex justify-center">
+            <div className="flex gap-2">
+              {['#ff3131', '#ffff00', '#39ff14', '#00f0ff'].map((color, i) => (
+                <div 
+                  key={i}
+                  className="w-3 h-3 rounded-full animate-pulse"
+                  style={{ 
+                    backgroundColor: color,
+                    boxShadow: `0 0 10px ${color}`,
+                    animationDelay: `${i * 0.2}s`
+                  }}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -93,43 +143,64 @@ export function EntryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center p-3 sm:p-4">
-      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 max-w-md w-full">
+    <div className="min-h-screen bg-[#0a0a0f] cyber-grid-animated flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated background orbs */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      
+      <div className="glass-card rounded-2xl p-6 sm:p-8 max-w-md w-full relative cyber-corners animate-slide-up">
+        {/* Back button */}
         <button
           onClick={() => setMode(null)}
-          className="text-gray-600 hover:text-gray-800 active:text-gray-900 mb-4 text-sm sm:text-base"
+          className="text-gray-400 hover:text-[#00f0ff] transition-colors mb-6 flex items-center gap-2 text-sm"
+          style={{ fontFamily: 'Orbitron, sans-serif' }}
         >
-          ← Back
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          BACK
         </button>
         
-        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">
-          {mode === 'create' ? 'Create Game' : 'Join Game'}
+        {/* Title */}
+        <h2 
+          className="text-2xl font-bold mb-6 text-[#00f0ff]"
+          style={{ fontFamily: 'Orbitron, sans-serif' }}
+        >
+          {mode === 'create' ? '// INITIALIZE' : '// CONNECT'}
         </h2>
         
-        <form onSubmit={mode === 'create' ? handleCreateGame : handleJoinGame} className="space-y-3 sm:space-y-4">
+        <form onSubmit={mode === 'create' ? handleCreateGame : handleJoinGame} className="space-y-5">
+          {/* Display Name */}
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
-              Display Name
+            <label 
+              className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider"
+              style={{ fontFamily: 'Orbitron, sans-serif' }}
+            >
+              Callsign
             </label>
             <input
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Enter your name"
+              placeholder="Enter identifier..."
               minLength={3}
               maxLength={12}
               required
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-sm sm:text-base"
+              className="cyber-input w-full px-4 py-3 rounded-lg"
             />
           </div>
           
+          {/* Game Code (join only) */}
           {mode === 'join' && (
             <div>
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
-                Game Code
+              <label 
+                className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider"
+                style={{ fontFamily: 'Orbitron, sans-serif' }}
+              >
+                Access Code
                 {searchParams.get('join') && (
-                  <span className="ml-2 text-xs text-green-600 font-normal">
-                    ✅ Pre-filled from invite link
+                  <span className="ml-2 text-[#39ff14] normal-case tracking-normal">
+                    ✓ Auto-linked
                   </span>
                 )}
               </label>
@@ -137,50 +208,86 @@ export function EntryPage() {
                 type="text"
                 value={gameCode}
                 onChange={(e) => setGameCode(e.target.value.toUpperCase())}
-                placeholder="ABCDEF"
+                placeholder="XXXXXX"
                 maxLength={6}
                 required
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent uppercase text-sm sm:text-base"
+                className="cyber-input w-full px-4 py-3 rounded-lg uppercase tracking-[0.3em] text-center text-xl"
+                style={{ fontFamily: 'Orbitron, sans-serif' }}
               />
             </div>
           )}
           
+          {/* Avatar Selection */}
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
-              Avatar
+            <label 
+              className="block text-xs font-medium text-gray-400 mb-3 uppercase tracking-wider"
+              style={{ fontFamily: 'Orbitron, sans-serif' }}
+            >
+              Avatar Unit
             </label>
-            <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-              {['1', '2', '3', '4', '5', '6', '7', '8'].map((id) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setAvatarId(id)}
-                  className={`p-2.5 sm:p-4 rounded-lg border-2 transition-all duration-75 active:scale-95 min-h-[56px] min-w-[56px] ${
-                    avatarId === id
-                      ? 'border-purple-600 bg-purple-50'
-                      : 'border-gray-200 hover:border-gray-300 active:border-gray-400'
-                  }`}
-                  style={{ touchAction: 'manipulation' }}
-                >
-                  <span className="text-2xl sm:text-3xl">{['😀', '🎮', '🚀', '⚡', '🎨', '🎯', '🏆', '🌟'][parseInt(id) - 1]}</span>
-                </button>
-              ))}
+            <div className="grid grid-cols-4 gap-2">
+              {avatars.map((emoji, index) => {
+                const id = String(index + 1);
+                const isSelected = avatarId === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setAvatarId(id)}
+                    className={`
+                      relative p-3 rounded-lg transition-all duration-200 min-h-[60px]
+                      ${isSelected 
+                        ? 'bg-[#00f0ff]/20 border-2 border-[#00f0ff] shadow-[0_0_15px_rgba(0,240,255,0.3)]' 
+                        : 'bg-black/30 border-2 border-gray-700/50 hover:border-gray-500'}
+                    `}
+                    style={{ touchAction: 'manipulation' }}
+                  >
+                    <span className="text-2xl">{emoji}</span>
+                    {isSelected && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#00f0ff] rounded-full animate-pulse" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
           
+          {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-800 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm">
+            <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
               {error}
             </div>
           )}
           
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-purple-600 hover:bg-purple-700 active:bg-purple-800 active:scale-98 disabled:bg-gray-400 text-white font-bold py-3 sm:py-4 px-6 rounded-lg sm:rounded-xl transition-all duration-75 text-base sm:text-lg min-h-[56px]"
+            className={`
+              cyber-btn cyber-btn-green w-full py-4 px-6 rounded-lg text-base min-h-[60px]
+              disabled:opacity-50 disabled:cursor-not-allowed
+            `}
             style={{ touchAction: 'manipulation' }}
           >
-            {loading ? 'Loading...' : mode === 'create' ? 'Create Game' : 'Join Game'}
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Connecting...
+              </span>
+            ) : (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                {mode === 'create' ? 'Launch Session' : 'Connect'}
+              </span>
+            )}
           </button>
         </form>
       </div>
