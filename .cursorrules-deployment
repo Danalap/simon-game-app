@@ -1,0 +1,95 @@
+# Simon Game - Render Deployment Configuration
+# ============================================
+# This file documents the production deployment on Render.
+# Last updated: 2026-01-11
+
+## Production URLs
+- **Frontend (Game)**: https://simon-game-frontend-9v85.onrender.com
+- **Backend (API/WebSocket)**: https://simon-game-backend-r7hr.onrender.com
+
+---
+
+## Backend Service: simon-game-backend
+
+### Service Details
+- **Service ID**: srv-d5homr56ubrc73859bfg
+- **Type**: Web Service
+- **Runtime**: Node.js
+- **Plan**: Starter
+- **Region**: Oregon
+- **URL**: https://simon-game-backend-r7hr.onrender.com
+- **Dashboard**: https://dashboard.render.com/web/srv-d5homr56ubrc73859bfg
+- **Repository**: https://github.com/itayshmool/simon-game-app-cday
+- **Branch**: main
+- **Auto Deploy**: Yes (on commit)
+
+### Build Configuration
+- **Build Command**: `npm install && npm run build`
+- **Start Command**: `npm start`
+- **Port**: 10000
+
+### Environment Variables
+| Variable | Value | Description |
+|----------|-------|-------------|
+| `NODE_ENV` | `production` | Node environment |
+| `PORT` | `10000` | Server port (Render default) |
+| `JWT_SECRET` | (secret) | JWT signing key |
+| `FRONTEND_URL` | `https://simon-game-frontend-9v85.onrender.com` | Allowed CORS origin |
+
+---
+
+## Frontend Service: simon-game-frontend
+
+### Service Details
+- **Service ID**: srv-d5homs14tr6s739occbg
+- **Type**: Static Site
+- **Plan**: Starter
+- **URL**: https://simon-game-frontend-9v85.onrender.com
+- **Dashboard**: https://dashboard.render.com/static/srv-d5homs14tr6s739occbg
+- **Repository**: https://github.com/itayshmool/simon-game-app-cday
+- **Branch**: main
+- **Auto Deploy**: Yes (on commit)
+
+### Build Configuration
+- **Build Command**: `cd frontend && npm install && npm run build`
+- **Publish Path**: `frontend/dist`
+
+### Environment Variables (Build-time)
+| Variable | Value | Description |
+|----------|-------|-------------|
+| `VITE_API_URL` | `https://simon-game-backend-r7hr.onrender.com` | Backend API URL |
+| `VITE_SOCKET_URL` | `wss://simon-game-backend-r7hr.onrender.com` | WebSocket URL |
+
+---
+
+## Deployment Notes
+
+### How to Deploy
+1. Push to `main` branch - auto-deploys both services
+2. Manual deploy via Render dashboard
+3. Use `npm run publish` script (if configured)
+
+### Important Considerations
+- Backend must be deployed and running before frontend can connect
+- WebSocket URL uses `wss://` (secure) in production
+- Environment variables with `VITE_` prefix are embedded at build time
+- Free tier services spin down after 15 minutes of inactivity
+
+### Troubleshooting
+- Check Render logs in dashboard if deployment fails
+- Verify environment variables are set correctly
+- Ensure CORS is configured for the frontend URL
+- WebSocket connections require the backend to be awake
+
+---
+
+## Quick Reference
+
+```bash
+# Backend API Health Check
+curl https://simon-game-backend-r7hr.onrender.com/health
+
+# View deployment logs
+# Visit: https://dashboard.render.com/web/srv-d5homr56ubrc73859bfg/logs
+```
+
