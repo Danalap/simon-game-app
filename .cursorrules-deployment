@@ -4,22 +4,22 @@
 # Last updated: 2026-01-11
 
 ## Production URLs
-- **Frontend (Game)**: https://simon-game-frontend-9v85.onrender.com
-- **Backend (API/WebSocket)**: https://simon-game-backend-r7hr.onrender.com
+- **Frontend (Game)**: https://simon-game-frontend-v2.onrender.com
+- **Backend (API/WebSocket)**: https://simon-game-backend-v2.onrender.com
 
 ---
 
-## Backend Service: simon-game-backend
+## Backend Service: simon-game-backend-v2
 
 ### Service Details
-- **Service ID**: srv-d5homr56ubrc73859bfg
+- **Service ID**: srv-d5hovk94tr6s739oi830
 - **Type**: Web Service
 - **Runtime**: Node.js
 - **Plan**: Starter
 - **Region**: Oregon
-- **URL**: https://simon-game-backend-r7hr.onrender.com
-- **Dashboard**: https://dashboard.render.com/web/srv-d5homr56ubrc73859bfg
-- **Repository**: https://github.com/itayshmool/simon-game-app-cday
+- **URL**: https://simon-game-backend-v2.onrender.com
+- **Dashboard**: https://dashboard.render.com/web/srv-d5hovk94tr6s739oi830
+- **Repository**: https://github.com/Danalap/simon-game-app
 - **Branch**: main
 - **Auto Deploy**: Yes (on commit)
 
@@ -34,19 +34,19 @@
 | `NODE_ENV` | `production` | Node environment |
 | `PORT` | `10000` | Server port (Render default) |
 | `JWT_SECRET` | (secret) | JWT signing key |
-| `FRONTEND_URL` | `https://simon-game-frontend-9v85.onrender.com` | Allowed CORS origin |
+| `FRONTEND_URL` | `https://simon-game-frontend-v2.onrender.com` | Allowed CORS origin |
 
 ---
 
-## Frontend Service: simon-game-frontend
+## Frontend Service: simon-game-frontend-v2
 
 ### Service Details
-- **Service ID**: srv-d5homs14tr6s739occbg
+- **Service ID**: srv-d5hovla4d50c7397mf4g
 - **Type**: Static Site
 - **Plan**: Starter
-- **URL**: https://simon-game-frontend-9v85.onrender.com
-- **Dashboard**: https://dashboard.render.com/static/srv-d5homs14tr6s739occbg
-- **Repository**: https://github.com/itayshmool/simon-game-app-cday
+- **URL**: https://simon-game-frontend-v2.onrender.com
+- **Dashboard**: https://dashboard.render.com/static/srv-d5hovla4d50c7397mf4g
+- **Repository**: https://github.com/Danalap/simon-game-app
 - **Branch**: main
 - **Auto Deploy**: Yes (on commit)
 
@@ -57,8 +57,8 @@
 ### Environment Variables (Build-time)
 | Variable | Value | Description |
 |----------|-------|-------------|
-| `VITE_API_URL` | `https://simon-game-backend-r7hr.onrender.com` | Backend API URL |
-| `VITE_SOCKET_URL` | `wss://simon-game-backend-r7hr.onrender.com` | WebSocket URL |
+| `VITE_API_URL` | `https://simon-game-backend-v2.onrender.com` | Backend API URL |
+| `VITE_SOCKET_URL` | `wss://simon-game-backend-v2.onrender.com` | WebSocket URL |
 
 ---
 
@@ -83,13 +83,18 @@
 
 ---
 
+## Old Services (can be deleted)
+- Backend: https://dashboard.render.com/web/srv-d5homr56ubrc73859bfg
+- Frontend: https://dashboard.render.com/static/srv-d5homs14tr6s739occbg
+
+---
+
 ## Quick Reference
 
 ```bash
 # Backend API Health Check
-curl https://simon-game-backend-r7hr.onrender.com/health
+curl https://simon-game-backend-v2.onrender.com/health
 
 # View deployment logs
-# Visit: https://dashboard.render.com/web/srv-d5homr56ubrc73859bfg/logs
+# Visit: https://dashboard.render.com/web/srv-d5hovk94tr6s739oi830/logs
 ```
-
