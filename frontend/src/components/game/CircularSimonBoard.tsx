@@ -1,7 +1,8 @@
 /**
- * Circular Simon Board Component - Cyber Tech Edition
+ * Classic Simon Board Component
  * 
- * Futuristic circular Simon game with neon glow effects using SVG paths.
+ * Authentic recreation of the original 1978 Simon game design.
+ * Four colored quadrants with black center hub.
  */
 
 import { useState, useEffect, useRef } from 'react';
@@ -64,7 +65,7 @@ function createWedgePath(
 }
 
 // =============================================================================
-// WEDGE COMPONENT
+// WEDGE COMPONENT - Classic Simon Style
 // =============================================================================
 
 interface WedgeProps {
@@ -92,12 +93,12 @@ const ColorWedge: React.FC<WedgeProps> = ({
   innerRadius,
   outerRadius,
 }) => {
-  // Cyber neon colors
-  const colors: Record<Color, { dim: string; bright: string; glow: string }> = {
-    green: { dim: '#0a3d1f', bright: '#39ff14', glow: '#39ff14' },
-    red: { dim: '#3d0a0a', bright: '#ff3131', glow: '#ff3131' },
-    yellow: { dim: '#3d3d0a', bright: '#ffff00', glow: '#ffff00' },
-    blue: { dim: '#0a1a3d', bright: '#00f0ff', glow: '#00f0ff' },
+  // Classic Simon colors - dim when inactive, bright when lit
+  const colors: Record<Color, { dim: string; bright: string; stroke: string }> = {
+    green: { dim: '#005a28', bright: '#00ff6e', stroke: '#003d1a' },
+    red: { dim: '#6e0f0c', bright: '#ff3b30', stroke: '#4a0a08' },
+    yellow: { dim: '#8a6b00', bright: '#ffea00', stroke: '#5c4700' },
+    blue: { dim: '#042658', bright: '#3b7eff', stroke: '#021a3d' },
   };
 
   const wedgeColor = colors[color];
@@ -116,18 +117,14 @@ const ColorWedge: React.FC<WedgeProps> = ({
     <path
       d={path}
       fill={fillColor}
-      stroke="#1a1a2e"
-      strokeWidth="3"
+      stroke={wedgeColor.stroke}
+      strokeWidth="4"
       onClick={disabled ? undefined : onClick}
       style={{
         cursor: disabled ? 'not-allowed' : 'pointer',
-        transition: 'fill 0.1s ease, filter 0.1s ease, transform 0.1s ease',
-        filter: isActive 
-          ? `brightness(1.5) drop-shadow(0 0 20px ${wedgeColor.glow}) drop-shadow(0 0 40px ${wedgeColor.glow}) drop-shadow(0 0 60px ${wedgeColor.glow})` 
-          : 'brightness(1)',
-        transformOrigin: `${centerX}px ${centerY}px`,
-        transform: isActive ? 'scale(1.03)' : 'scale(1)',
-        opacity: disabled ? 0.4 : 1,
+        transition: 'fill 0.08s ease',
+        filter: isActive ? `brightness(1.3) drop-shadow(0 0 20px ${wedgeColor.bright})` : 'brightness(1)',
+        opacity: disabled ? 0.5 : 1,
       }}
       role="button"
       aria-label={`${color} button`}
@@ -161,15 +158,15 @@ export const CircularSimonBoard: React.FC<CircularSimonBoardProps> = ({
 }) => {
   const [activeColor, setActiveColor] = useState<Color | null>(null);
 
-  // SVG dimensions
-  const size = 320;
+  // SVG dimensions - slightly larger for classic look
+  const size = 340;
   const centerX = size / 2;
   const centerY = size / 2;
-  const outerRadius = size / 2 - 15;
-  const innerRadius = size * 0.2;
-  const gapAngle = 5;
+  const outerRadius = size / 2 - 12;
+  const innerRadius = size * 0.22;
+  const gapAngle = 3;
 
-  // Wedge angles
+  // Classic Simon layout
   const wedges: { color: Color; start: number; end: number }[] = [
     { color: 'green', start: 180 + gapAngle / 2, end: 270 - gapAngle / 2 },
     { color: 'red', start: 270 + gapAngle / 2, end: 360 - gapAngle / 2 },
@@ -214,12 +211,8 @@ export const CircularSimonBoard: React.FC<CircularSimonBoardProps> = ({
 
     const sequenceLength = sequence.length;
     const sequenceToShow = [...sequence];
-    const currentRound = round;
     
-    if (sequenceLength === 0) {
-      console.error(`🎨 ERROR: Empty sequence for round ${currentRound}`);
-      return;
-    }
+    if (sequenceLength === 0) return;
 
     const SHOW_DURATION = 600;
     const SHOW_GAP = 200;
@@ -285,92 +278,60 @@ export const CircularSimonBoard: React.FC<CircularSimonBoardProps> = ({
     onColorClick(color);
   };
 
-  // Get color indicator
-  const getColorIndicator = (color: Color): string => {
-    const indicators: Record<Color, string> = {
-      red: '🔴',
-      blue: '🔵',
-      yellow: '🟡',
-      green: '🟢',
-    };
-    return indicators[color];
-  };
-
-  // Timer colors
-  const timerColors = {
-    green: '#39ff14',
-    yellow: '#ffff00',
-    red: '#ff3131',
+  // Timer display colors
+  const timerDisplayColors = {
+    green: '#00ff6e',
+    yellow: '#ffea00',
+    red: '#ff3b30',
   };
 
   return (
     <div className="game-area flex flex-col items-center gap-4 w-full">
-      {/* Round Display */}
+      {/* Round & Status Display - Classic LED style */}
       <div className="text-center">
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <div className="h-px w-8 bg-gradient-to-r from-transparent to-[#00f0ff]" />
-          <h2 
-            className="text-2xl font-bold text-[#00f0ff]"
-            style={{ fontFamily: 'Orbitron, sans-serif' }}
-          >
+        <div className="led-display inline-block px-6 py-2 mb-2">
+          <span className="text-sm" style={{ color: '#00ff6e' }}>
             ROUND {round}
-          </h2>
-          <div className="h-px w-8 bg-gradient-to-l from-transparent to-[#00f0ff]" />
+          </span>
         </div>
         
         {isShowingSequence ? (
-          <div className="bg-[#ffff00]/10 border border-[#ffff00]/50 rounded-lg px-4 py-2 animate-pulse">
-            <p 
-              className="text-[#ffff00] font-bold text-sm uppercase tracking-wider"
-              style={{ fontFamily: 'Orbitron, sans-serif' }}
-            >
-              ◉ Memorize Pattern
+          <div className="bg-yellow-500/20 border-2 border-yellow-500 rounded-lg px-4 py-2">
+            <p className="text-yellow-400 font-bold text-sm uppercase tracking-wider">
+              ● Watch the pattern
             </p>
           </div>
         ) : (
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-400 text-sm uppercase tracking-wider">
             {disabled 
-              ? '👁 Spectating' 
+              ? 'Spectating' 
               : isInputPhase
-                ? '⚡ Input Sequence' 
-                : '✓ Ready'}
+                ? 'Your turn!' 
+                : 'Ready'}
           </p>
         )}
       </div>
 
       {/* Timer Display */}
       {isInputPhase && secondsRemaining > 0 && (
-        <div className="flex flex-col items-center">
-          <div 
-            className={`font-bold transition-all duration-200 ${isTimerPulsing ? 'animate-pulse scale-110' : ''}`}
-            style={{ 
-              fontFamily: 'Orbitron, sans-serif',
-              color: timerColors[timerColor],
-              textShadow: `0 0 10px ${timerColors[timerColor]}, 0 0 20px ${timerColors[timerColor]}`,
-              fontSize: secondsRemaining <= 5 ? '3rem' : secondsRemaining <= 10 ? '2.5rem' : '2rem',
-            }}
-          >
-            {secondsRemaining}
-          </div>
-          <div 
-            className="text-xs uppercase tracking-wider mt-1"
-            style={{ color: timerColors[timerColor], fontFamily: 'Orbitron, sans-serif' }}
-          >
-            Seconds
-          </div>
+        <div 
+          className={`led-display px-4 py-2 ${isTimerPulsing ? 'animate-pulse-light' : ''}`}
+          style={{ color: timerDisplayColors[timerColor] }}
+        >
+          <span className="text-2xl font-bold">{secondsRemaining}</span>
+          <span className="text-xs ml-1">SEC</span>
         </div>
       )}
 
-      {/* SVG Circular Simon Board */}
-      <div className="relative w-full max-w-[min(85vw,340px)] mx-auto">
-        {/* Outer glow ring */}
+      {/* Classic Simon Game Unit */}
+      <div className="relative w-full max-w-[min(90vw,360px)] mx-auto">
+        {/* Outer casing */}
         <div 
-          className="absolute inset-0 rounded-full opacity-30 animate-pulse"
+          className="absolute inset-0 rounded-full"
           style={{
-            background: `radial-gradient(circle, transparent 60%, ${activeColor ? 
-              (activeColor === 'green' ? '#39ff14' : activeColor === 'red' ? '#ff3131' : activeColor === 'yellow' ? '#ffff00' : '#00f0ff') 
-              : '#00f0ff'} 100%)`,
-            filter: 'blur(20px)',
+            background: 'linear-gradient(145deg, #2a2a2a 0%, #1a1a1a 50%, #0f0f0f 100%)',
+            transform: 'scale(1.08)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.6), inset 0 2px 0 rgba(255,255,255,0.05)',
           }}
         />
         
@@ -379,24 +340,13 @@ export const CircularSimonBoard: React.FC<CircularSimonBoardProps> = ({
           className="w-full h-auto relative z-10"
           style={{ touchAction: 'manipulation' }}
         >
-          {/* Definitions for filters */}
-          <defs>
-            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-              <feMerge>
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
-          </defs>
-
-          {/* Background circle */}
+          {/* Black background circle */}
           <circle
             cx={centerX}
             cy={centerY}
-            r={outerRadius + 8}
-            fill="#0a0a0f"
-            stroke="#1a1a2e"
+            r={outerRadius + 6}
+            fill="#1a1a1a"
+            stroke="#333"
             strokeWidth="2"
           />
 
@@ -417,29 +367,37 @@ export const CircularSimonBoard: React.FC<CircularSimonBoardProps> = ({
             />
           ))}
 
-          {/* Center hub */}
+          {/* Center hub - Classic black dome */}
           <circle
             cx={centerX}
             cy={centerY}
-            r={innerRadius - 3}
-            fill="#0a0a0f"
-            stroke="#00f0ff"
-            strokeWidth="2"
-            style={{ filter: 'drop-shadow(0 0 5px #00f0ff)' }}
+            r={innerRadius}
+            fill="url(#centerGradient)"
+            stroke="#222"
+            strokeWidth="3"
           />
+          
+          {/* Gradient for center hub */}
+          <defs>
+            <radialGradient id="centerGradient" cx="40%" cy="30%">
+              <stop offset="0%" stopColor="#3a3a3a" />
+              <stop offset="50%" stopColor="#1a1a1a" />
+              <stop offset="100%" stopColor="#0a0a0a" />
+            </radialGradient>
+          </defs>
 
           {/* Center content */}
           {isShowingSequence && sequenceIndex >= 0 ? (
             <>
               <text
                 x={centerX}
-                y={centerY + 8}
+                y={centerY + 6}
                 textAnchor="middle"
-                fill="#00f0ff"
-                fontSize="36"
+                fill="#00ff6e"
+                fontSize="28"
                 fontWeight="bold"
-                fontFamily="Orbitron, sans-serif"
-                style={{ filter: 'drop-shadow(0 0 5px #00f0ff)' }}
+                fontFamily="'Press Start 2P', cursive"
+                style={{ textShadow: '0 0 10px #00ff6e' }}
               >
                 {sequenceIndex + 1}
               </text>
@@ -448,66 +406,73 @@ export const CircularSimonBoard: React.FC<CircularSimonBoardProps> = ({
                 y={centerY + 26}
                 textAnchor="middle"
                 fill="#666"
-                fontSize="12"
-                fontFamily="Orbitron, sans-serif"
+                fontSize="10"
+                fontFamily="'Audiowide', cursive"
               >
-                /{sequence.length}
+                of {sequence.length}
               </text>
             </>
           ) : (
             <>
               <text
                 x={centerX}
-                y={centerY - 2}
+                y={centerY - 4}
                 textAnchor="middle"
-                fill="#00f0ff"
-                fontSize="14"
+                fill="#888"
+                fontSize="20"
                 fontWeight="bold"
-                fontFamily="Orbitron, sans-serif"
-                style={{ filter: 'drop-shadow(0 0 3px #00f0ff)' }}
+                fontFamily="'Audiowide', cursive"
+                letterSpacing="4"
               >
                 SIMON
               </text>
               <text
                 x={centerX}
-                y={centerY + 14}
+                y={centerY + 16}
                 textAnchor="middle"
-                fill="#ff00ff"
+                fill="#555"
                 fontSize="8"
-                fontFamily="Orbitron, sans-serif"
-                letterSpacing="3"
+                fontFamily="'Audiowide', cursive"
+                letterSpacing="2"
               >
-                CYBER
+                ® GAME
               </text>
             </>
           )}
         </svg>
       </div>
 
-      {/* Player Sequence Display */}
+      {/* Player Input Display */}
       {isInputPhase && playerSequence.length > 0 && (
-        <div className="glass-card rounded-xl p-3 w-full max-w-[min(85vw,340px)]">
-          <div className="flex justify-center items-center gap-1.5 min-h-[32px] flex-wrap">
+        <div className="score-display rounded-lg p-3 w-full max-w-[min(90vw,360px)]">
+          <div className="flex justify-center items-center gap-2 min-h-[32px] flex-wrap">
             {playerSequence.map((color, i) => (
-              <span 
-                key={i} 
-                className="text-xl transition-transform hover:scale-110"
-                style={{ animationDelay: `${i * 0.05}s` }}
-              >
-                {getColorIndicator(color)}
-              </span>
+              <div
+                key={i}
+                className="w-6 h-6 rounded-full border-2"
+                style={{
+                  backgroundColor: color === 'green' ? '#00a74a' : 
+                                   color === 'red' ? '#d91e18' :
+                                   color === 'yellow' ? '#ffc500' : '#094fb3',
+                  borderColor: color === 'green' ? '#00ff6e' : 
+                               color === 'red' ? '#ff3b30' :
+                               color === 'yellow' ? '#ffea00' : '#3b7eff',
+                  boxShadow: `0 0 8px ${
+                    color === 'green' ? '#00a74a' : 
+                    color === 'red' ? '#d91e18' :
+                    color === 'yellow' ? '#ffc500' : '#094fb3'
+                  }`,
+                }}
+              />
             ))}
-            <span 
-              className="text-gray-500 text-xs ml-2"
-              style={{ fontFamily: 'Orbitron, sans-serif' }}
-            >
+            <span className="text-gray-500 text-xs ml-2 font-mono">
               {playerSequence.length}/{sequence.length}
             </span>
           </div>
         </div>
       )}
 
-      {/* Submit Button */}
+      {/* Submit Button - Classic style */}
       {isInputPhase && (
         <button
           onClick={() => {
@@ -519,30 +484,14 @@ export const CircularSimonBoard: React.FC<CircularSimonBoardProps> = ({
           disabled={!canSubmit}
           style={{ touchAction: 'manipulation' }}
           className={`
-            w-full max-w-[min(85vw,340px)] py-4 rounded-xl font-bold text-base min-h-[60px]
-            transition-all duration-200 uppercase tracking-wider
+            w-full max-w-[min(90vw,360px)] py-4 rounded-lg font-bold text-base min-h-[56px]
+            transition-all duration-150 uppercase tracking-wider
             ${canSubmit 
-              ? 'cyber-btn cyber-btn-green' 
-              : 'bg-gray-800/50 border-2 border-gray-700 text-gray-500 cursor-not-allowed'}
+              ? 'classic-btn classic-btn-green text-white' 
+              : 'bg-gray-800 border-2 border-gray-700 text-gray-500 cursor-not-allowed'}
           `}
         >
-          <span 
-            className="flex items-center justify-center gap-2"
-            style={{ fontFamily: 'Orbitron, sans-serif' }}
-          >
-            {canSubmit ? (
-              <>
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Submit
-              </>
-            ) : (
-              <>
-                <span className="text-sm">{playerSequence.length}/{sequence.length}</span>
-              </>
-            )}
-          </span>
+          {canSubmit ? '✓ Submit' : `${playerSequence.length}/${sequence.length}`}
         </button>
       )}
     </div>

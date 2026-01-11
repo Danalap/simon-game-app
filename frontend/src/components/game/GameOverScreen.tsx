@@ -1,20 +1,11 @@
 /**
- * Game Over Screen Component - Cyber Tech Edition
+ * Game Over Screen - Classic Simon Style
  * 
- * Displays the end game results with:
- * - Winner celebration with cyber effects
- * - Final scoreboard with neon styling
- * - Game stats
- * - Play Again / Home buttons
- * - Share score functionality
+ * Displays end game results with retro styling.
  */
 
 import { useEffect, useState } from 'react';
 import { soundService } from '../../services/soundService';
-
-// =============================================================================
-// TYPES
-// =============================================================================
 
 interface GameOverScreenProps {
   winner: {
@@ -35,46 +26,6 @@ interface GameOverScreenProps {
   gameCode: string;
 }
 
-// =============================================================================
-// CYBER PARTICLES COMPONENT
-// =============================================================================
-
-const CyberParticles: React.FC = () => {
-  const particles = Array.from({ length: 30 }, (_, i) => ({
-    id: i,
-    left: Math.random() * 100,
-    delay: Math.random() * 3,
-    duration: 3 + Math.random() * 3,
-    size: 2 + Math.random() * 4,
-    color: ['#00f0ff', '#ff00ff', '#39ff14', '#ffff00'][Math.floor(Math.random() * 4)],
-  }));
-
-  return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      {particles.map((particle) => (
-        <div
-          key={particle.id}
-          className="absolute rounded-full animate-rise"
-          style={{
-            left: `${particle.left}%`,
-            bottom: '-20px',
-            width: `${particle.size}px`,
-            height: `${particle.size}px`,
-            backgroundColor: particle.color,
-            boxShadow: `0 0 ${particle.size * 2}px ${particle.color}`,
-            animationDelay: `${particle.delay}s`,
-            animationDuration: `${particle.duration}s`,
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
-// =============================================================================
-// GAME OVER SCREEN COMPONENT
-// =============================================================================
-
 export const GameOverScreen: React.FC<GameOverScreenProps> = ({
   winner,
   finalScores,
@@ -84,7 +35,6 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({
   onGoHome,
   gameCode,
 }) => {
-  const [showParticles, setShowParticles] = useState(true);
   const [animatedScore, setAnimatedScore] = useState(0);
   const isWinner = winner?.playerId === currentPlayerId;
   const isSoloGame = finalScores.length === 1;
@@ -112,143 +62,95 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({
     return () => clearInterval(timer);
   }, [winner]);
 
-  // Play victory sound on mount
   useEffect(() => {
     soundService.playVictory();
-    
-    const timer = setTimeout(() => setShowParticles(false), 6000);
-    return () => clearTimeout(timer);
   }, []);
 
-  // Get medal/rank display
   const getMedal = (rank: number): string => {
     switch (rank) {
       case 1: return '🥇';
       case 2: return '🥈';
       case 3: return '🥉';
-      default: return `#${rank}`;
+      default: return `${rank}.`;
     }
   };
 
-  // Share score functionality
   const handleShare = async () => {
     const myScore = finalScores.find(s => s.playerId === currentPlayerId)?.score || 0;
     const rank = finalScores.findIndex(s => s.playerId === currentPlayerId) + 1;
     
     const shareText = isSoloGame
-      ? `🎮 I reached Round ${roundsPlayed} in SIMON CYBER with ${myScore} points! Can you beat my score?`
-      : `🏆 I finished #${rank} in SIMON CYBER with ${myScore} points! ${isWinner ? '👑 WINNER!' : ''}`;
+      ? `🎮 I reached Round ${roundsPlayed} in Simon with ${myScore} points!`
+      : `🏆 I finished #${rank} in Simon with ${myScore} points! ${isWinner ? '👑 Winner!' : ''}`;
     
     const shareUrl = `${window.location.origin}/?join=${gameCode}`;
     
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: 'Simon Cyber Score',
-          text: shareText,
-          url: shareUrl,
-        });
+        await navigator.share({ title: 'Simon Score', text: shareText, url: shareUrl });
       } catch (err) {
         if ((err as Error).name !== 'AbortError') {
-          copyToClipboard(shareText + '\n' + shareUrl);
+          navigator.clipboard.writeText(shareText + '\n' + shareUrl);
         }
       }
     } else {
-      copyToClipboard(shareText + '\n' + shareUrl);
-    }
-  };
-
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch (err) {
-      console.error('Failed to copy:', err);
+      navigator.clipboard.writeText(shareText + '\n' + shareUrl);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] cyber-grid flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-      
-      {/* Cyber Particles */}
-      {showParticles && <CyberParticles />}
-      
-      <div className="relative z-10 w-full max-w-md animate-slide-up">
+    <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center p-4">
+      <div className="w-full max-w-md animate-fade-in">
         {/* Game Over Title */}
         <div className="text-center mb-6">
-          <h1 
-            className="text-4xl sm:text-5xl font-bold mb-2"
-            style={{ fontFamily: 'Orbitron, sans-serif' }}
-          >
-            <span className="text-[#00f0ff] text-glow-cyan">GAME</span>
-            <span className="text-[#ff00ff] text-glow-pink ml-3">OVER</span>
+          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 embossed tracking-wider">
+            Game Over
           </h1>
-          <div className="h-1 w-32 mx-auto bg-gradient-to-r from-[#00f0ff] via-[#ff00ff] to-[#00f0ff] rounded-full" />
+          <div className="flex justify-center gap-2">
+            {['#00a74a', '#d91e18', '#ffc500', '#094fb3'].map((color, i) => (
+              <div
+                key={i}
+                className="w-4 h-4 rounded-full"
+                style={{ backgroundColor: color }}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Winner Section */}
         {winner && (
-          <div className="glass-card rounded-2xl p-6 mb-4 text-center relative overflow-hidden border border-[#ffff00]/30">
-            {/* Animated glow */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#ffff00]/10 to-transparent animate-pulse" />
+          <div className="classic-panel p-6 mb-4 text-center">
+            <div className="text-4xl mb-3">👑</div>
             
-            <div className="relative z-10">
-              {/* Crown */}
-              <div 
-                className="text-5xl mb-3 animate-bounce"
-                style={{ filter: 'drop-shadow(0 0 10px #ffff00)' }}
-              >
-                👑
-              </div>
-              
-              <h2 
-                className="text-xl font-bold text-[#ffff00] mb-2 uppercase tracking-wider"
-                style={{ fontFamily: 'Orbitron, sans-serif' }}
-              >
-                {isSoloGame ? 'Mission Complete' : 'Champion'}
-              </h2>
-              
-              <div 
-                className="text-white text-2xl font-semibold mb-2"
-                style={{ fontFamily: 'Rajdhani, sans-serif' }}
-              >
-                {winner.name}
-              </div>
-              
-              <div 
-                className="text-5xl font-bold"
-                style={{ 
-                  fontFamily: 'Orbitron, sans-serif',
-                  color: '#39ff14',
-                  textShadow: '0 0 10px #39ff14, 0 0 20px #39ff14',
-                }}
-              >
-                {animatedScore}
-                <span className="text-lg text-gray-400 ml-2">PTS</span>
-              </div>
-              
-              {isWinner && !isSoloGame && (
-                <div 
-                  className="mt-3 text-[#00f0ff] text-sm font-semibold uppercase tracking-wider"
-                  style={{ fontFamily: 'Orbitron, sans-serif' }}
-                >
-                  ◉ That's You ◉
-                </div>
-              )}
+            <h2 className="text-xl font-bold text-yellow-400 mb-2 uppercase tracking-wider">
+              {isSoloGame ? 'Great Job!' : 'Winner!'}
+            </h2>
+            
+            <div className="text-white text-2xl font-semibold mb-2">
+              {winner.name}
             </div>
+            
+            <div 
+              className="text-4xl font-bold font-mono"
+              style={{ color: '#00ff6e', textShadow: '0 0 10px #00ff6e' }}
+            >
+              {animatedScore}
+              <span className="text-lg text-gray-400 ml-2">pts</span>
+            </div>
+            
+            {isWinner && !isSoloGame && (
+              <div className="mt-3 text-[#00a74a] text-sm font-semibold">
+                ✨ That's you! ✨
+              </div>
+            )}
           </div>
         )}
 
-        {/* Scoreboard (Multiplayer only) */}
+        {/* Scoreboard (Multiplayer) */}
         {!isSoloGame && finalScores.length > 0 && (
-          <div className="glass-card rounded-xl p-4 mb-4">
-            <h3 
-              className="text-center mb-3 text-xs text-gray-500 uppercase tracking-wider"
-              style={{ fontFamily: 'Orbitron, sans-serif' }}
-            >
-              // Final Rankings
+          <div className="classic-panel p-4 mb-4">
+            <h3 className="text-center mb-3 text-xs text-gray-500 uppercase tracking-wider">
+              Final Standings
             </h3>
             
             <div className="space-y-2">
@@ -259,41 +161,22 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({
                 return (
                   <div
                     key={player.playerId}
-                    className={`flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
+                    className={`flex items-center justify-between px-3 py-2 rounded-lg ${
                       isCurrentPlayer
-                        ? 'bg-[#00f0ff]/10 border border-[#00f0ff]/30 scale-105'
-                        : rank <= 3
-                          ? 'bg-black/40'
-                          : 'bg-black/20'
+                        ? 'bg-[#00a74a]/20 border border-[#00a74a]/40'
+                        : rank <= 3 ? 'bg-black/40' : 'bg-black/20'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-xl w-8 text-center">
-                        {getMedal(rank)}
-                      </span>
-                      <span 
-                        className="text-white font-medium"
-                        style={{ fontFamily: 'Rajdhani, sans-serif' }}
-                      >
+                      <span className="text-xl w-8 text-center">{getMedal(rank)}</span>
+                      <span className="text-white">
                         {player.name}
-                        {isCurrentPlayer && (
-                          <span className="text-xs ml-2 text-[#00f0ff]">(YOU)</span>
-                        )}
+                        {isCurrentPlayer && <span className="text-xs ml-1 text-[#00a74a]">(you)</span>}
                       </span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span 
-                        className="font-bold"
-                        style={{ 
-                          fontFamily: 'Orbitron, sans-serif',
-                          color: rank === 1 ? '#39ff14' : '#fff',
-                        }}
-                      >
-                        {player.score}
-                      </span>
-                      {player.isEliminated && (
-                        <span className="text-red-400 text-xs">💀</span>
-                      )}
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-bold font-mono">{player.score}</span>
+                      {player.isEliminated && <span className="text-red-400 text-xs">💀</span>}
                     </div>
                   </div>
                 );
@@ -303,38 +186,30 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({
         )}
 
         {/* Game Stats */}
-        <div className="glass-card rounded-xl p-4 mb-6">
+        <div className="score-display rounded-lg p-4 mb-6">
           <div className="flex justify-around text-center">
             <div>
-              <div 
-                className="text-3xl font-bold text-[#00f0ff]"
-                style={{ fontFamily: 'Orbitron, sans-serif' }}
-              >
-                {roundsPlayed}
-              </div>
-              <div className="text-gray-500 text-xs uppercase tracking-wider">Rounds</div>
+              <div className="text-2xl font-bold text-white font-mono">{roundsPlayed}</div>
+              <div className="text-gray-500 text-xs uppercase">Rounds</div>
             </div>
             <div className="border-l border-gray-700" />
             <div>
               <div 
-                className="text-3xl font-bold text-[#39ff14]"
-                style={{ fontFamily: 'Orbitron, sans-serif' }}
+                className="text-2xl font-bold font-mono"
+                style={{ color: '#00ff6e' }}
               >
                 {finalScores.find(s => s.playerId === currentPlayerId)?.score || 0}
               </div>
-              <div className="text-gray-500 text-xs uppercase tracking-wider">Score</div>
+              <div className="text-gray-500 text-xs uppercase">Score</div>
             </div>
             {!isSoloGame && (
               <>
                 <div className="border-l border-gray-700" />
                 <div>
-                  <div 
-                    className="text-3xl font-bold text-[#ff00ff]"
-                    style={{ fontFamily: 'Orbitron, sans-serif' }}
-                  >
+                  <div className="text-2xl font-bold text-white font-mono">
                     #{finalScores.findIndex(s => s.playerId === currentPlayerId) + 1}
                   </div>
-                  <div className="text-gray-500 text-xs uppercase tracking-wider">Rank</div>
+                  <div className="text-gray-500 text-xs uppercase">Rank</div>
                 </div>
               </>
             )}
@@ -345,70 +220,29 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({
         <div className="space-y-3">
           <button
             onClick={onPlayAgain}
-            className="cyber-btn cyber-btn-green w-full py-4 px-6 rounded-xl text-base min-h-[60px]"
+            className="classic-btn classic-btn-green w-full py-4 px-6 text-lg min-h-[56px]"
             style={{ touchAction: 'manipulation' }}
           >
-            <span 
-              className="flex items-center justify-center gap-2"
-              style={{ fontFamily: 'Orbitron, sans-serif' }}
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Rematch
-            </span>
+            ▶ Play Again
           </button>
 
           <button
             onClick={onGoHome}
-            className="cyber-btn w-full py-4 px-6 rounded-xl text-base min-h-[60px]"
+            className="classic-btn w-full py-4 px-6 text-lg min-h-[56px]"
             style={{ touchAction: 'manipulation' }}
           >
-            <span 
-              className="flex items-center justify-center gap-2"
-              style={{ fontFamily: 'Orbitron, sans-serif' }}
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              Exit
-            </span>
+            ◀ Home
           </button>
 
           <button
             onClick={handleShare}
-            className="cyber-btn cyber-btn-pink w-full py-3 px-6 rounded-xl text-sm"
+            className="classic-btn w-full py-3 px-6 text-sm"
             style={{ touchAction: 'manipulation' }}
           >
-            <span 
-              className="flex items-center justify-center gap-2"
-              style={{ fontFamily: 'Orbitron, sans-serif' }}
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-              </svg>
-              Share Score
-            </span>
+            📤 Share Score
           </button>
         </div>
       </div>
-
-      {/* CSS for particle animation */}
-      <style>{`
-        @keyframes rise {
-          0% {
-            transform: translateY(0) scale(1);
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(-100vh) scale(0.5);
-            opacity: 0;
-          }
-        }
-        .animate-rise {
-          animation: rise linear infinite;
-        }
-      `}</style>
     </div>
   );
 };

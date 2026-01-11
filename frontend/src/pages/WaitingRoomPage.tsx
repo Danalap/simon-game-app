@@ -1,5 +1,5 @@
 /**
- * Waiting Room / Game Page - Cyber Tech Edition
+ * Waiting Room / Game Page - Classic Simon Style
  * 
  * Combined page that shows:
  * - Waiting room before game starts
@@ -58,11 +58,7 @@ export function WaitingRoomPage() {
   
   // Initialize on mount
   useEffect(() => {
-    console.log('🎮 WaitingRoomPage mounted');
-    
     const socket = socketService.connect();
-    console.log('✅ Socket connected:', socket.connected);
-    
     initializeListeners();
     
     if (gameCode && playerId) {
@@ -70,31 +66,24 @@ export function WaitingRoomPage() {
     }
     
     socket.once('room_state', (room: any) => {
-      console.log('📦 Initial room state:', room);
       setPlayers(room.players || []);
       setRoomStatus(room.status);
-      
       const me = room.players?.find((p: any) => p.id === playerId);
-      const isHostPlayer = me?.isHost || false;
-      setIsHost(isHostPlayer);
+      setIsHost(me?.isHost || false);
     });
     
     socket.on('room_state_update', (room: any) => {
-      console.log('🔄 Room state updated:', room);
       setPlayers(room.players || []);
       setRoomStatus(room.status);
-      
       const me = room.players?.find((p: any) => p.id === playerId);
       setIsHost(me?.isHost || false);
     });
     
     socket.on('error', (data: { message: string }) => {
-      console.error('❌ Server error:', data.message);
       setToast({ message: data.message, type: 'error' });
     });
     
     socket.on('countdown', (data: { count: number }) => {
-      console.log('⏳ Countdown:', data.count);
       setRoomStatus('countdown');
       setCountdownValue(data.count);
       
@@ -110,17 +99,13 @@ export function WaitingRoomPage() {
       }
     });
     
-    socket.on('player_joined', (player: any) => {
-      console.log('👋 Player joined:', player);
-    });
+    socket.on('player_joined', () => {});
     
     socket.on('player_left', (data: { playerId: string }) => {
-      console.log('👋 Player left:', data.playerId);
       setPlayers(prev => prev.filter(p => p.id !== data.playerId));
     });
     
-    socket.on('game_restarted', (data: { gameCode: string }) => {
-      console.log('🔄 Game restarted:', data.gameCode);
+    socket.on('game_restarted', () => {
       resetGame();
       setRoomStatus('waiting');
       lastCountdownValue.current = null;
@@ -141,16 +126,10 @@ export function WaitingRoomPage() {
   
   const handleStartGame = async () => {
     await soundService.init();
-    
     const socket = socketService.getSocket();
     
-    if (!socket) {
-      setToast({ message: 'No connection to server', type: 'error' });
-      return;
-    }
-    
-    if (!gameCode || !playerId) {
-      setToast({ message: 'Missing game info', type: 'error' });
+    if (!socket || !gameCode || !playerId) {
+      setToast({ message: 'Connection error', type: 'error' });
       return;
     }
     
@@ -159,45 +138,38 @@ export function WaitingRoomPage() {
   
   const copyGameCode = async () => {
     if (!gameCode) return;
-    
     try {
       await navigator.clipboard.writeText(gameCode);
-      setToast({ message: 'Code copied to clipboard!', type: 'success' });
-    } catch (err) {
-      setToast({ message: 'Failed to copy code', type: 'error' });
+      setToast({ message: 'Code copied!', type: 'success' });
+    } catch {
+      setToast({ message: 'Failed to copy', type: 'error' });
     }
   };
   
   const copyInviteLink = async () => {
     if (!gameCode) return;
-    
     const inviteUrl = `${window.location.origin}/?join=${gameCode}`;
-    
     try {
       await navigator.clipboard.writeText(inviteUrl);
-      setToast({ message: 'Invite link copied!', type: 'success' });
-    } catch (err) {
-      setToast({ message: 'Failed to copy link', type: 'error' });
+      setToast({ message: 'Link copied!', type: 'success' });
+    } catch {
+      setToast({ message: 'Failed to copy', type: 'error' });
     }
   };
   
   const shareGame = async () => {
     if (!gameCode) return;
-    
     const inviteUrl = `${window.location.origin}/?join=${gameCode}`;
     
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Join my Simon Game!',
-          text: `Join me in Simon Says! Use code: ${gameCode}`,
+          title: 'Join Simon Game!',
+          text: `Play Simon with me! Code: ${gameCode}`,
           url: inviteUrl,
         });
-        setToast({ message: 'Invite shared!', type: 'success' });
       } catch (err) {
-        if ((err as Error).name !== 'AbortError') {
-          copyInviteLink();
-        }
+        if ((err as Error).name !== 'AbortError') copyInviteLink();
       }
     } else {
       copyInviteLink();
@@ -207,7 +179,6 @@ export function WaitingRoomPage() {
   const handlePlayAgain = () => {
     resetGame();
     setRoomStatus('waiting');
-    
     const socket = socketService.getSocket();
     if (socket && gameCode && playerId) {
       socket.emit('restart_game', { gameCode, playerId });
@@ -220,7 +191,7 @@ export function WaitingRoomPage() {
     navigate('/');
   };
 
-  // Render Game Over screen
+  // Game Over screen
   if (isGameOver) {
     return (
       <>
@@ -238,28 +209,21 @@ export function WaitingRoomPage() {
     );
   }
 
-  // Render game board if active
+  // Active game board
   if (roomStatus === 'active' && isGameActive) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] cyber-grid flex items-center justify-center p-2 sm:p-4 relative overflow-hidden">
-        {/* Background effects */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-pink-500/5 rounded-full blur-3xl" />
-        
+      <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center p-2 sm:p-4">
         <MuteButton />
         
-        <div className="flex flex-col items-center w-full max-w-md relative z-10">
+        <div className="flex flex-col items-center w-full max-w-md">
           {/* Scoreboard */}
           {isGameActive && Object.keys(scores).length > 0 && (
-            <div className="glass-card rounded-xl p-3 mb-4 w-full">
-              <div 
-                className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1"
-                style={{ fontFamily: 'Orbitron, sans-serif' }}
-              >
-                // Leaderboard
+            <div className="classic-panel p-3 mb-4 w-full">
+              <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">
+                Scoreboard
               </div>
-              <div className="space-y-1.5">
-                {players.map((player, index) => {
+              <div className="space-y-1">
+                {players.map((player) => {
                   const score = scores[player.id] || 0;
                   const hasSubmitted = submittedPlayers.includes(player.id);
                   const isCurrentPlayer = player.id === playerId;
@@ -267,27 +231,23 @@ export function WaitingRoomPage() {
                   return (
                     <div
                       key={player.id}
-                      className={`flex items-center justify-between px-3 py-2 rounded-lg transition-all ${
+                      className={`flex items-center justify-between px-3 py-2 rounded ${
                         isCurrentPlayer 
-                          ? 'bg-[#00f0ff]/10 border border-[#00f0ff]/30' 
+                          ? 'bg-[#00a74a]/20 border border-[#00a74a]/40' 
                           : 'bg-black/30'
                       }`}
                     >
                       <span className="text-white text-sm flex items-center gap-2">
-                        <span className="text-gray-500 text-xs w-4">{index + 1}.</span>
-                        <span>{player.avatar || '🤖'}</span>
-                        <span style={{ fontFamily: 'Rajdhani, sans-serif' }}>{player.displayName}</span>
-                        {isCurrentPlayer && <span className="text-[#00f0ff] text-xs">(YOU)</span>}
+                        <span>{player.avatar || '🎮'}</span>
+                        <span>{player.displayName}</span>
+                        {isCurrentPlayer && <span className="text-[#00a74a] text-xs">(YOU)</span>}
                       </span>
                       <div className="flex items-center gap-3">
-                        <span 
-                          className="text-[#39ff14] font-bold"
-                          style={{ fontFamily: 'Orbitron, sans-serif' }}
-                        >
+                        <span className="text-[#00ff6e] font-bold font-mono">
                           {score}
                         </span>
                         {hasSubmitted && isInputPhase && (
-                          <span className="text-[#39ff14] text-xs">✓</span>
+                          <span className="text-green-400 text-xs">✓</span>
                         )}
                       </div>
                     </div>
@@ -299,15 +259,12 @@ export function WaitingRoomPage() {
           
           {/* Eliminated Message */}
           {isEliminated && (
-            <div className="glass-card-pink rounded-xl p-4 mb-4 text-center w-full border border-red-500/30">
-              <div className="text-4xl mb-2">💀</div>
-              <div 
-                className="text-red-400 font-bold uppercase tracking-wider"
-                style={{ fontFamily: 'Orbitron, sans-serif' }}
-              >
+            <div className="classic-panel p-4 mb-4 text-center w-full border-2 border-red-500/50">
+              <div className="text-3xl mb-2">💀</div>
+              <div className="text-red-400 font-bold uppercase tracking-wider">
                 Eliminated
               </div>
-              <p className="text-gray-400 text-sm mt-1">Spectating...</p>
+              <p className="text-gray-500 text-sm mt-1">Spectating mode</p>
             </div>
           )}
           
@@ -331,15 +288,10 @@ export function WaitingRoomPage() {
             isTimerPulsing={isTimerPulsing}
           />
           
-          {/* Message Display */}
+          {/* Message */}
           {message && (
             <div className="mt-4 text-center">
-              <p 
-                className="text-gray-300 text-sm"
-                style={{ fontFamily: 'Rajdhani, sans-serif' }}
-              >
-                {message}
-              </p>
+              <p className="text-gray-400 text-sm">{message}</p>
             </div>
           )}
         </div>
@@ -347,50 +299,32 @@ export function WaitingRoomPage() {
     );
   }
   
-  // Render countdown
+  // Countdown
   if (roomStatus === 'countdown' && countdownValue !== null) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] cyber-grid-animated flex items-center justify-center p-4 relative overflow-hidden">
-        {/* Pulsing background */}
-        <div className="absolute inset-0 bg-gradient-radial from-cyan-500/10 via-transparent to-transparent animate-pulse" />
-        
-        <div className="text-center relative z-10">
+      <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center p-4">
+        <div className="text-center">
           <div 
-            className="text-8xl sm:text-9xl font-bold mb-4 text-glow-cyan"
+            className="text-8xl sm:text-9xl font-bold mb-4 animate-pulse-light"
             style={{ 
-              fontFamily: 'Orbitron, sans-serif',
-              color: '#00f0ff',
+              color: '#00ff6e',
+              textShadow: '0 0 30px #00ff6e, 0 0 60px #00ff6e',
+              fontFamily: "'Press Start 2P', cursive",
             }}
           >
             {countdownValue}
           </div>
-          <p 
-            className="text-xl text-gray-400 uppercase tracking-[0.3em]"
-            style={{ fontFamily: 'Orbitron, sans-serif' }}
-          >
-            Initializing
+          <p className="text-xl text-gray-400 uppercase tracking-[0.3em]">
+            Get Ready
           </p>
-          
-          {/* Animated rings */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div 
-              className="w-48 h-48 border-2 border-[#00f0ff]/30 rounded-full animate-ping"
-              style={{ animationDuration: '1.5s' }}
-            />
-          </div>
         </div>
       </div>
     );
   }
   
-  // Render waiting room
+  // Waiting room
   return (
-    <div className="min-h-screen bg-[#0a0a0f] cyber-grid-animated flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-      
-      {/* Toast notification */}
+    <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center p-4">
       {toast && (
         <Toast
           message={toast.message}
@@ -399,35 +333,29 @@ export function WaitingRoomPage() {
         />
       )}
       
-      <div className="glass-card rounded-2xl p-6 sm:p-8 max-w-lg w-full relative cyber-corners animate-slide-up">
+      <div className="classic-panel p-6 sm:p-8 max-w-lg w-full animate-fade-in">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 
-            className="text-2xl sm:text-3xl font-bold text-[#00f0ff] mb-2"
-            style={{ fontFamily: 'Orbitron, sans-serif' }}
-          >
-            // LOBBY
+          <h1 className="text-2xl font-bold text-white embossed tracking-wider mb-2">
+            Waiting Room
           </h1>
           <div className="flex items-center justify-center gap-2">
-            <div className="w-2 h-2 bg-[#39ff14] rounded-full animate-pulse" />
-            <span className="text-gray-400 text-sm uppercase tracking-wider">
-              Awaiting Players
+            <div className="w-2 h-2 bg-[#00ff6e] rounded-full animate-pulse-light" />
+            <span className="text-gray-500 text-sm uppercase tracking-wider">
+              Waiting for players
             </span>
           </div>
         </div>
         
-        {/* Game Code Display */}
+        {/* Game Code */}
         <div className="mb-6">
-          <div className="bg-black/50 rounded-xl p-4 border border-[#00f0ff]/20">
-            <p 
-              className="text-xs text-gray-500 uppercase tracking-wider mb-2 text-center"
-              style={{ fontFamily: 'Orbitron, sans-serif' }}
-            >
-              Access Code
+          <div className="score-display rounded-lg p-4 text-center">
+            <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">
+              Game Code
             </p>
             <p 
-              className="text-3xl sm:text-4xl text-center text-[#00f0ff] tracking-[0.3em] text-glow-cyan cursor-pointer hover:scale-105 transition-transform"
-              style={{ fontFamily: 'Orbitron, sans-serif' }}
+              className="text-3xl sm:text-4xl tracking-[0.3em] cursor-pointer hover:opacity-80 transition-opacity font-mono"
+              style={{ color: '#00ff6e', textShadow: '0 0 10px #00ff6e' }}
               onClick={copyGameCode}
             >
               {gameCode}
@@ -438,39 +366,24 @@ export function WaitingRoomPage() {
           <div className="flex gap-2 mt-4">
             <button
               onClick={copyGameCode}
-              className="flex-1 cyber-btn py-2.5 px-3 rounded-lg text-xs"
+              className="flex-1 classic-btn py-2.5 px-3 text-sm"
               style={{ touchAction: 'manipulation' }}
             >
-              <span className="flex items-center justify-center gap-1.5">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-                Code
-              </span>
+              📋 Code
             </button>
             <button
               onClick={copyInviteLink}
-              className="flex-1 cyber-btn py-2.5 px-3 rounded-lg text-xs"
+              className="flex-1 classic-btn py-2.5 px-3 text-sm"
               style={{ touchAction: 'manipulation' }}
             >
-              <span className="flex items-center justify-center gap-1.5">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                </svg>
-                Link
-              </span>
+              🔗 Link
             </button>
             <button
               onClick={shareGame}
-              className="flex-1 cyber-btn cyber-btn-pink py-2.5 px-3 rounded-lg text-xs"
+              className="flex-1 classic-btn py-2.5 px-3 text-sm"
               style={{ touchAction: 'manipulation' }}
             >
-              <span className="flex items-center justify-center gap-1.5">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                </svg>
-                Share
-              </span>
+              📤 Share
             </button>
           </div>
         </div>
@@ -478,42 +391,33 @@ export function WaitingRoomPage() {
         {/* Players List */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h2 
-              className="text-sm text-gray-400 uppercase tracking-wider"
-              style={{ fontFamily: 'Orbitron, sans-serif' }}
-            >
-              Connected Players
+            <h2 className="text-sm text-gray-400 uppercase tracking-wider">
+              Players
             </h2>
-            <span className="text-[#00f0ff] text-sm font-bold">{players.length}</span>
+            <span className="text-[#00ff6e] font-bold">{players.length}</span>
           </div>
           
           <div className="space-y-2 max-h-48 overflow-y-auto">
-            {players.map((player, index) => (
+            {players.map((player) => (
               <div 
                 key={player.id} 
-                className={`flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
+                className={`flex items-center justify-between px-4 py-3 rounded-lg ${
                   player.id === playerId 
-                    ? 'bg-[#00f0ff]/10 border border-[#00f0ff]/30' 
-                    : 'bg-black/30 border border-transparent'
+                    ? 'bg-[#00a74a]/20 border border-[#00a74a]/40' 
+                    : 'bg-black/30'
                 }`}
-                style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <span className="font-medium text-white flex items-center gap-2">
-                  <span className="text-xl">{['🤖', '👾', '🎮', '⚡', '🔮', '💎', '🌟', '🚀'][parseInt(player.avatarId || '1') - 1] || '🤖'}</span>
-                  <span style={{ fontFamily: 'Rajdhani, sans-serif' }}>
-                    {player.displayName}
+                <span className="text-white flex items-center gap-2">
+                  <span className="text-xl">
+                    {['🎮', '👾', '🕹️', '⭐', '🏆', '💎', '🎯', '🚀'][parseInt(player.avatarId || '1') - 1] || '🎮'}
                   </span>
+                  <span>{player.displayName}</span>
                   {player.id === playerId && (
-                    <span className="text-[#00f0ff] text-xs">(YOU)</span>
+                    <span className="text-[#00a74a] text-xs">(YOU)</span>
                   )}
                 </span>
                 {player.isHost && (
-                  <span 
-                    className="text-[#ffff00] text-xs uppercase tracking-wider"
-                    style={{ fontFamily: 'Orbitron, sans-serif' }}
-                  >
-                    👑 Host
-                  </span>
+                  <span className="text-yellow-400 text-sm">👑 Host</span>
                 )}
               </div>
             ))}
@@ -530,26 +434,20 @@ export function WaitingRoomPage() {
             )}
             <button
               onClick={handleStartGame}
-              className="cyber-btn cyber-btn-green w-full py-4 px-6 rounded-lg text-base min-h-[60px]"
+              className="classic-btn classic-btn-green w-full py-4 px-6 text-lg min-h-[60px]"
               style={{ touchAction: 'manipulation' }}
             >
-              <span className="flex items-center justify-center gap-2">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {players.length === 1 ? 'Launch Solo' : 'Launch Game'}
-              </span>
+              ▶ {players.length === 1 ? 'Start Solo' : 'Start Game'}
             </button>
           </div>
         )}
         
         {!isHost && players.length > 1 && (
           <div className="text-center">
-            <div className="flex items-center justify-center gap-2 text-gray-400">
-              <div className="w-2 h-2 bg-[#ffff00] rounded-full animate-pulse" />
-              <span className="text-sm">Waiting for host to launch...</span>
-            </div>
+            <p className="text-gray-500 text-sm flex items-center justify-center gap-2">
+              <span className="animate-pulse-light">●</span>
+              Waiting for host...
+            </p>
           </div>
         )}
       </div>
