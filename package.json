@@ -4,6 +4,7 @@
   "description": "Multiplayer Simon Says game with real-time WebSocket communication",
   "main": "dist/backend/server.js",
   "scripts": {
+    "preinstall": "rm -rf node_modules/.cache node_modules/.caniuse-lite* 2>/dev/null || true",
     "setup": "bash setup.sh",
     "go": "bash setup.sh",
     "publish": "bash publish.sh",
